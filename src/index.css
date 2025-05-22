@@ -1,0 +1,50 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+  
+  body {
+    @apply bg-[#0A0A0A] text-white;
+  }
+}
+
+@layer components {
+  .container {
+    @apply px-4 mx-auto max-w-7xl;
+  }
+  
+  .btn {
+    @apply px-6 py-3 font-medium transition-all rounded-lg shadow-button duration-300;
+  }
+  
+  .btn-primary {
+    @apply btn bg-blue-600 text-white hover:bg-blue-700;
+  }
+  
+  .btn-secondary {
+    @apply btn bg-white/10 text-white hover:bg-white/20;
+  }
+  
+  .section {
+    @apply py-24 md:py-32;
+  }
+  
+  .section-title {
+    @apply mb-4 text-4xl font-bold text-center md:text-6xl text-white;
+  }
+  
+  .section-subtitle {
+    @apply max-w-3xl mx-auto mb-16 text-lg text-center text-gray-400;
+  }
+
+  .grid-background {
+    background-size: 50px 50px;
+    background-image: linear-gradient(to right, #1a1a1a 1px, transparent 1px),
+                    linear-gradient(to bottom, #1a1a1a 1px, transparent 1px);
+    @apply bg-[#0A0A0A];
+  }
+}
