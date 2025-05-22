@@ -20,19 +20,9 @@ const ChatLayout: React.FC<ChatLayoutProps> = ({ onLogout }) => {
     Array<{ text: string; sender: "user" | "bot" }>
   >([]);
   const [userFullName, setUserFullName] = useState<string>("");
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
   const [userId, setUserId] = useState<string>("");
   const replicaUuid = import.meta.env.VITE_SENSAY_REPLICA_UUID;
-
-  useEffect(() => {
-    fetchUserData();
-  }, []);
-
-  useEffect(() => {
-    if (userId) {
-      loadChatHistory();
-    }
-  }, [userId]);
 
   const fetchUserData = async () => {
     try {
@@ -53,6 +43,7 @@ const ChatLayout: React.FC<ChatLayoutProps> = ({ onLogout }) => {
 
       if (error) {
         console.error("Error fetching user data:", error);
+        toast.error("Failed to load user data");
         if (fullName) {
           setUserFullName(fullName);
         }
@@ -61,9 +52,14 @@ const ChatLayout: React.FC<ChatLayoutProps> = ({ onLogout }) => {
 
       if (userData) {
         setUserFullName(userData.full_name);
-        setUserId(userData.sensay_user_id);
+        if (userData.sensay_user_id) {
+          setUserId(userData.sensay_user_id);
+        } else {
+          toast.error("User ID not found");
+        }
       } else if (fullName) {
         setUserFullName(fullName);
+        toast.error("User profile not found");
       }
     } catch (error) {
       console.error("Error fetching user data:", error);
@@ -72,6 +68,8 @@ const ChatLayout: React.FC<ChatLayoutProps> = ({ onLogout }) => {
   };
 
   const loadChatHistory = async () => {
+    if (!userId) return;
+
     try {
       const response = await ChatApiService.getChatHistory(replicaUuid, userId);
       if (response.success) {
@@ -84,10 +82,18 @@ const ChatLayout: React.FC<ChatLayoutProps> = ({ onLogout }) => {
     } catch (error) {
       console.error("Error loading chat history:", error);
       toast.error("Failed to load chat history");
-    } finally {
-      setIsLoading(false);
     }
   };
+
+  useEffect(() => {
+    fetchUserData();
+  }, []);
+
+  useEffect(() => {
+    if (userId) {
+      loadChatHistory();
+    }
+  }, [userId]);
 
   const handleSendMessage = async (message: string) => {
     if (!userId) {
@@ -95,7 +101,6 @@ const ChatLayout: React.FC<ChatLayoutProps> = ({ onLogout }) => {
       return;
     }
 
-    // Optimistically add user message
     const userMessage = { text: message, sender: "user" as const };
     setMessages((prev) => [...prev, userMessage]);
     setIsLoading(true);
@@ -107,11 +112,9 @@ const ChatLayout: React.FC<ChatLayoutProps> = ({ onLogout }) => {
         userId
       );
       if (response.success) {
-        // Start with an empty bot message
         const botMessage = { text: "", sender: "bot" as const };
         setMessages((prev) => [...prev, botMessage]);
 
-        // Simulate streaming by adding one character at a time
         const finalText = response.content;
         let currentText = "";
 
@@ -122,12 +125,10 @@ const ChatLayout: React.FC<ChatLayoutProps> = ({ onLogout }) => {
               idx === prev.length - 1 ? { ...msg, text: currentText } : msg
             )
           );
-          // Add a small delay between characters
           await new Promise((resolve) => setTimeout(resolve, 20));
         }
       }
     } catch (error) {
-      // Remove the optimistically added message on error
       setMessages((prev) => prev.filter((msg) => msg !== userMessage));
       console.error("Error sending message:", error);
       toast.error("Failed to send message");
@@ -135,14 +136,6 @@ const ChatLayout: React.FC<ChatLayoutProps> = ({ onLogout }) => {
       setIsLoading(false);
     }
   };
-
-  if (isLoading) {
-    return (
-      <div className="flex h-screen items-center justify-center bg-[#0A0A0A] text-white">
-        <div className="text-xl">Loading your conversations...</div>
-      </div>
-    );
-  }
 
   return (
     <div className="flex flex-col h-screen overflow-hidden bg-[#0A0A0A] text-white">
