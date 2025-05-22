@@ -2,7 +2,7 @@
 
 LangTalker is an innovative AI-powered platform designed to help users learn German through natural conversations. Featuring an AI tutor trained with Goethe-Institute-level expertise, it provides personalized, interactive German language learning experiences.
 
-![LangTalker Demo](src/assets/images/helga-avatar.jpg)
+![LangTalker Avatar](src/assets/images/helga-avatar.jpg)
 
 ## ✨ Features
 
@@ -31,7 +31,6 @@ LangTalker is an innovative AI-powered platform designed to help users learn Ger
 ### 🔐 User Features
 
 - Secure authentication via Supabase
-- Personal progress tracking
 - Chat history persistence
 - Customizable learning experience
 
@@ -78,7 +77,7 @@ cd langtalker
 2. Install dependencies:
 
 ```bash
-npm install
+npm install --force
 ```
 
 3. Create a `.env` file in the root directory with the following variables:
